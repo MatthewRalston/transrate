@@ -49,8 +49,13 @@ module Transrate
     end
 
     def reciprocal_best_blast
+<<<<<<< HEAD
       crbblast = CRB_Blast::CRB_Blast.new @assembly.file, @reference.file
       crbblast.run(1e-5, @threads, true)
+=======
+      crbblast = CRB_Blast.new @assembly.file, @reference.file
+      crbblast.run(1e-5, @threads, nil)
+>>>>>>> stranded
       crbblast
     end
 
