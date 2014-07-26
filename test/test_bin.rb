@@ -25,7 +25,6 @@ class TestTransrateBin < Test::Unit::TestCase
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.sam",
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.sorted.bam",
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.bai",
-      #"150uncovered.l.fq.150uncovered.r.fq..sorghum_transcript.sam"
       "..150uncovered.u.fq.assembly.2.bai",
       "..150uncovered.u.fq.assembly.2.bam",
       "..150uncovered.u.fq.assembly.2.sam",
@@ -42,6 +41,7 @@ class TestTransrateBin < Test::Unit::TestCase
       "Os.protein.2.phr",  "Os.protein.2.pin",  "Os.protein.2.psq",
       "supported_bridges.csv",
       "transrate_assemblies.csv",
+      "transrate_assemblies.2.fa_contigs.csv",
       "transrate_contigs.csv"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
@@ -51,7 +51,7 @@ class TestTransrateBin < Test::Unit::TestCase
     should "run help" do
       c=Transrate::Cmd.new("bundle exec bin/transrate --help")
       c.run
-      assert_equal 2039, c.stdout.length, "stdout"
+      assert_equal 2035, c.stdout.length, "stdout"
       assert_equal true, c.status.success?, "exit status"
     end
 
@@ -79,8 +79,8 @@ class TestTransrateBin < Test::Unit::TestCase
       d=Transrate::Cmd.new("bundle exec bin/transrate --aseembly #{assembly} --left #{left} --strand-specific f")
       a.run;b.run;c.run;d.run
       assert_equal 250, a.stderr.length, "error"
-      assert_equal 117, b.stderr.length, "error"
-      assert_equal 117, c.stderr.length, "error"
+      assert_equal 118, b.stderr.length, "error"
+      assert_equal 118, c.stderr.length, "error"
       assert_equal 59, d.stderr.length, "error"
       assert_equal false, a.status.success?, "exit status"
       assert_equal false, b.status.success?, "exit status"
@@ -102,9 +102,11 @@ class TestTransrateBin < Test::Unit::TestCase
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"
-      assert File.exist?("transrate.csv")
+      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
+      assert File.exist?("transrate_assembly.2.fa_contigs.csv"),
+             "csv file doesn't exist"
       hash = {}
-      CSV.foreach("transrate.csv", :headers => true,
+      CSV.foreach("transrate_assemblies.csv", :headers => true,
                                    :header_converters => :symbol,
                                    :converters => :all) do |row|
         row.headers
@@ -113,9 +115,9 @@ class TestTransrateBin < Test::Unit::TestCase
           hash[header]=field
         end
       end
-      assert_equal 10331, hash[:n_bases]
-      assert_equal 1566, hash[:n50]
-      assert_equal 10, hash[:n_refs_with_recip]
+      assert_equal 10331, hash[:n_bases], "number of bases"
+      assert_equal 1566, hash[:n50], "n50"
+      assert_equal 10, hash[:n_refs_with_crbb], "number of crb hits"
     end
 
 should "run on test data with unpaired input" do
@@ -128,9 +130,11 @@ should "run on test data with unpaired input" do
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"
-      assert File.exist?("transrate.csv")
+      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
+      assert File.exist?("transrate_assembly.2.fa_contigs.csv"),
+             "csv file doesn't exist"
       hash = {}
-      CSV.foreach("transrate.csv", :headers => true,
+      CSV.foreach("transrate_assemblies.csv", :headers => true,
                                    :header_converters => :symbol,
                                    :converters => :all) do |row|
         row.headers
@@ -139,9 +143,9 @@ should "run on test data with unpaired input" do
           hash[header]=field
         end
       end
-      assert_equal 10331, hash[:n_bases]
-      assert_equal 1566, hash[:n50]
-      assert_equal 10, hash[:n_refs_with_recip]
+      assert_equal 10331, hash[:n_bases], "number of bases"
+      assert_equal 1566, hash[:n50], "n50"
+      assert_equal 10, hash[:n_refs_with_crbb], "number of crb hits"
     end
 
 should "run on test data with paired input" do
@@ -206,9 +210,11 @@ should "run on test data with paired input" do
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"
-      assert File.exist?("transrate.csv")
+      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
+      assert File.exist?("transrate_assembly.2.fa_contigs.csv"),
+             "csv file doesn't exist"
       hash = {}
-      CSV.foreach("transrate.csv", :headers => true,
+      CSV.foreach("transrate_assemblies.csv", :headers => true,
                                    :header_converters => :symbol,
                                    :converters => :all) do |row|
         row.headers
@@ -217,9 +223,9 @@ should "run on test data with paired input" do
           hash[header]=field
         end
       end
-      assert_equal 10331, hash[:n_bases]
-      assert_equal 1566, hash[:n50]
-      assert_equal 10, hash[:n_refs_with_recip]
+      assert_equal 10331, hash[:n_bases], "number of bases"
+      assert_equal 1566, hash[:n50], "n50"
+      assert_equal 10, hash[:n_refs_with_crbb], "number of crb hits"
     end
   end
 end
