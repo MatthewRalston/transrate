@@ -13,11 +13,9 @@ class TestTransrateBin < Test::Unit::TestCase
       files = ["150uncovered.l.fq.150uncovered.r.fq.assembly.2.bai",
       "150uncovered.l.fq.150uncovered.r.fq.assembly.2.bam",
       "150uncovered.l.fq.150uncovered.r.fq.assembly.2.sam",
-<<<<<<< HEAD
       "150uncovered.l.fq.150uncovered.r.fq.assembly.2.sorted.bam",
       "assembly.2.1.bt2", "assembly.2.2.bt2", "assembly.2.3.bt2",
       "assembly.2.4.bt2", "assembly.2.fa.coverage",
-=======
       "150uncovered.l.fq.150uncovered.r.fq..assembly.2.sam",
       "150uncovered.l.fq.150uncovered.r.fq..assembly.2.bam",
       "150uncovered.l.fq.150uncovered.r.fq..assembly.2.bai",
@@ -37,7 +35,6 @@ class TestTransrateBin < Test::Unit::TestCase
       "assembly.2.3.bt2",
       "assembly.2.4.bt2",
       "assembly.2.fa.coverage",
->>>>>>> stranded
       "assembly.2_into_Os.protein.2.1.blast",
       "assembly.2.nhr", "assembly.2.nin", "assembly.2.nsq",
       "assembly.2.rev.1.bt2",  "assembly.2.rev.2.bt2",
@@ -54,11 +51,7 @@ class TestTransrateBin < Test::Unit::TestCase
     should "run help" do
       c=Transrate::Cmd.new("bundle exec bin/transrate --help")
       c.run
-<<<<<<< HEAD
-      assert_equal 1751, c.stdout.length, "stdout"
-=======
       assert_equal 2039, c.stdout.length, "stdout"
->>>>>>> stranded
       assert_equal true, c.status.success?, "exit status"
     end
 
