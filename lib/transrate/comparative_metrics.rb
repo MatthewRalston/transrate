@@ -22,10 +22,11 @@ module Transrate
 
     def run
       @crbblast = reciprocal_best_blast
-      @reference_coverage = coverage @crbblast
-      @collapse_factor = collapse_factor @crbblast.reciprocals
+      @ortholog_hit_ratio = ortholog_hit_ratio @crbblast
+      @collapse_factor = collapse_factor @crbblast.target_results
       @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
+      @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
       @p_contigs_with_recip = @crbblast.reciprocals.size / @assembly.size.to_f
       @n_contigs_with_recip = @crbblast.reciprocals.size
       count_ref_crbbs
@@ -43,6 +44,7 @@ module Transrate
       @comp_stats[:n_refs_with_CRBB] = @n_refs_with_recip
       @comp_stats[:rbh_per_reference] = @rbh_per_reference
       @comp_stats[:reference_coverage] = @reference_coverage
+      @comp_stats[:ortholog_hit_ratio] = @ortholog_hit_ratio
       @comp_stats[:collapse_factor] = @collapse_factor
       @comp_stats[:n_chimeras] = @n_chimeras
       @comp_stats[:p_chimeras] = @p_chimeras
