@@ -70,8 +70,8 @@ opts = Trollop::options do
   opt :maxIntron, "maximum intron size for genome alignment",
       :default => 750000,
       :type => Integer
-  opt :outfile, "filename to use for CSV output",
-      :default => 'transate_results.csv'
+  opt :outfile, "prefix filename to use for CSV output",
+      :default => 'transrate'
   opt :loglevel, "the amount of information to print. " +
                  "one of [error, info, warn, debug]",
       :default => 'info'
