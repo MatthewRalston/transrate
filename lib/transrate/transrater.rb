@@ -28,7 +28,7 @@ module Transrate
     def initialize(assembly, reference, genome,
                    left: nil, right: nil, unpaired: nil, library: nil,
                    insertsize: nil, insertsd: nil,
-                   threads: 1, evalue: 1e-5, percent_threshold: 90.0, maxIntron: 750000)
+                   threads: 1, evalue: 1e-5, percent_threshold: 90.0, maxIntron: 750000, singletons: nil)
       if assembly
         if assembly.is_a?(Assembly)
           @assembly = assembly
@@ -59,6 +59,7 @@ module Transrate
         @reference_alignment = ReferenceAlignment.new(@assembly, @genome, threads, evalue, percent_threshold, maxIntron)
       end
       @threads = threads
+      @singletons = singletons
     end
 
     # Run all analyses
@@ -109,7 +110,7 @@ module Transrate
 
     def read_metrics left=nil, right=nil, unpaired=nil, library=nil
       unless @read_metrics.has_run
-        @read_metrics.run(left, right, unpaired, library, threads: @threads)
+        @read_metrics.run(left, right, unpaired, threads: @threads, singletons: @singletons)
       end
       @read_metrics
     end

@@ -100,7 +100,7 @@ class TestReadMetrics < Test::Unit::TestCase
       test={}
       testsam = File.join(File.dirname(__FILE__), 'data', 'nonsequential.sam')
       assert_raise RuntimeError do
-        @read_metrics.analyse_read_mappings(testsam, 200, 50, true)
+        @read_metrics.analyse_read_mappings(testsam, 200, 50, true, nil)
       end
     end
 

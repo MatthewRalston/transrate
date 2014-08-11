@@ -16,10 +16,11 @@ module Transrate
     def initialize assembly
       @assembly = assembly
       @mapper = Bowtie2.new
+      @singletons = []
       self.initial_values
     end
 
-    def run left=nil, right=nil, unpaired=nil, library=nil, insertsize:200, insertsd:50, threads:8
+    def run left=nil, right=nil, unpaired=nil, library=nil, insertsize:200, insertsd:50, threads:8, singletons:nil
       #[left, right, unpaired].each do |readfile|
       #  unless File.exist? readfile
       #    raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
@@ -35,7 +36,7 @@ module Transrate
         raise IOError.new "ReadMetrics read files not supplied:\nleft:#{left}\nright:#{right}\nunpaired:#{unpaired}"
       end
       # check_bridges
-      analyse_read_mappings(samfile, insertsize, insertsd, true)
+      analyse_read_mappings(samfile, insertsize, insertsd, true, singletons)
       analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @mapped / @num_reads.to_f * 100.0
@@ -80,16 +81,18 @@ module Transrate
       }
     end
 
-    def analyse_read_mappings samfile, insertsize, insertsd, bridge=true
+    def analyse_read_mappings samfile, insertsize, insertsd, bridge=true, singletons
       @bridges = {} if bridge
       realistic_dist = self.realistic_distance(insertsize, insertsd)
       if File.exists?(samfile) && File.size(samfile) > 0
         ls = BetterSam.new
         rs = BetterSam.new
         sam = File.open(samfile)
+        out = File.open(singletons,'a') if singletons
         line = sam.readline
         while line and line=~/^@/
           line = sam.readline rescue nil
+          out.puts(line) if singletons
         end
         while line
           @num_reads += 1
@@ -97,6 +100,7 @@ module Transrate
           #single read statistics if read is unpaired
           if !ls.read_paired?
             self.check_read_single(ls)
+			out.puts(line) if singletons
             line = sam.readline rescue nil
           else
             line2 = sam.readline rescue nil
@@ -106,6 +110,8 @@ module Transrate
               raise "Pairing error: consecutive paired reads unpaired in SAM file:\nNote: Paired reads have the same name by convention, sometimes with '1' or '2' appended.\nFirst read:#{ls.name}\nSecond read:#{rs.name}\n" unless ls.name == rs.name || ls.name[0...ls.name.size-1] == rs.name[0...rs.name.size-1]
               @pairs << [ls.name,rs.name] unless @pairs.include?([ls.name,rs.name]) || @pairs.include?([rs.name,ls.name])
               self.check_read_pair(ls, rs, realistic_dist)
+              out.puts(line) if ls.read_unmapped? if singletons
+              out.puts(line2) if rs.read_unmapped? if singletons
             end
             line = sam.readline rescue nil
           end
@@ -115,6 +121,7 @@ module Transrate
         @imperfect_pairs = @num_pairs - @mapped_pairs
         @split_pairs = (@num_single - @num_unpaired)/2
         check_bridges
+        out.close if singletons
       else
         raise "samfile #{samfile} not found"
       end
@@ -305,7 +312,10 @@ module Transrate
       @p_lowcovered_contigs = @n_lowcovered_contigs / @assembly.size.to_f
     end
 
+    def write_singletons outfile
+      `mv singletons.sam #{outfile}`
+    end
+
   end # ReadMetrics
 
 end # Transrate
-
