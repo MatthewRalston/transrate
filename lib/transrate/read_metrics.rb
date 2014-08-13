@@ -1,4 +1,4 @@
-qmodule Transrate
+module Transrate
 
   class ReadMetrics
 
@@ -20,7 +20,7 @@ qmodule Transrate
       self.initial_values
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8
+    def run left=nil, right=nil, unpaired=nil, library=nil, insertsize:200, insertsd:50, threads:8
       left.split(",").each {|file| raise IOError.new "Left read file is nil" unless File.exist? file} if left
       right.split(",").each {|file| raise IOError.new "Right read file is nil" unless File.exist? file} if right
       unpaired.split(",").each {|file| raise IOError.new "Unpaired read file is nil" unless File.exist? file} if unpaired
@@ -33,7 +33,7 @@ qmodule Transrate
       analyse_read_mappings(samfile, insertsize, insertsd, true, singletons)
       analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
-      @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
+      @percent_mapping = @mapped / @num_reads.to_f * 100.0
       @pc_good_mapping = @pr_good_mapping * 100.0
       @has_run = true
     end
@@ -97,26 +97,27 @@ qmodule Transrate
           @num_reads += 1
           ls.parse_line(line)
           lchrom = @assembly[ls.chrom]
-          lchrom.edit_distance += ls.edit_distance
-          lchrom.bases_mapped += ls.length
-          @edit_distance += ls.edit_distance
+          lchrom.edit_distance += ls.edit_distance unless lchrom.nil?
+          lchrom.bases_mapped += ls.length unless lchrom.nil?
+          @edit_distance += ls.edit_distance if ls.edit_distance
           @total_bases += ls.length
           #single read statistics if read is unpaired
           if !ls.read_paired?
             self.check_read_single(ls)
 			out.puts(line) if singletons
           else
+            @num_pairs += 1
             line2 = sam.readline rescue nil
             if line2
               @num_reads += 1
               rs.parse_line(line2)
               raise "Pairing error: consecutive paired reads unpaired in SAM file:\nNote: Paired reads have the same name by convention, sometimes with '1' or '2' appended.\nFirst read:#{ls.name}\nSecond read:#{rs.name}\n" unless ls.name == rs.name || ls.name[0...ls.name.size-1] == rs.name[0...rs.name.size-1]
-              @pairs << [ls.name,rs.name] unless @pairs.include?([ls.name,rs.name]) || @pairs.include?([rs.name,ls.name])
               rchrom = (rs.chrom == ls.chrom) ? lchrom : @assembly[rs.chrom]
-              rchrom.edit_distance += rs.edit_distance
-              rchrom.bases_mapped += rs.length
-              @edit_distance += rs.edit_distance
+              rchrom.edit_distance += rs.edit_distance if rs.edit_distance
+              rchrom.bases_mapped += rs.length unless rchrom.nil?
+              @edit_distance += rs.edit_distance if rs.edit_distance
               @total_bases += rs.length
+              @pairs << [ls.name,rs.name] unless @pairs.include?([ls.name,rs.name]) || @pairs.include?([rs.name,ls.name])
               self.check_read_pair(ls, rs, realistic_dist)
               out.puts(line) if ls.read_unmapped? if singletons
               out.puts(line2) if rs.read_unmapped? if singletons
@@ -136,8 +137,8 @@ qmodule Transrate
     end
 
     def initial_values
-      @num_reads = 0
       @num_pairs = 0
+      @num_reads = 0
       @num_unpaired = 0
       @num_single = 0
       @mapped_pairs = 0
@@ -179,7 +180,7 @@ qmodule Transrate
       # The incrementation assumes that reads produced
       # with the current bowtie parameters will produce
       @num_single += 1
-      (@num_pairs += 0.5; @split_pairs += 0.5) if ls.read_paired?
+      @split_pairs += 0.5 if ls.read_paired?
       @reads << ls.name unless @reads.include?(ls.name)
       unless ls.read_unmapped?
         if ls.primary_aln?
@@ -200,7 +201,6 @@ qmodule Transrate
       return unless ls.primary_aln?
       if ls.both_mapped?
         # reads are paired
-        @num_pairs += 1
         @mapped_pairs += 1
         @multiple_aligned_pairs << [ls.name,rs.name] if self.multiple_alignments? ls, rs
         @both_mapped += 1 if ls.primary_aln?

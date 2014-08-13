@@ -30,6 +30,7 @@ module Transrate
                   insertsd: 50, outputname: nil,
                   threads: 8)
       raise Bowtie2Error.new("Index not built") if !@index_built
+      raise Bowtie2Error.new("Left and right and/or unpaired reads required") unless unpaired || (left && right)
       lbase = File.basename(left.split(",").first) if left
       rbase = File.basename(right.split(",").first) if right
       ubase = File.basename(unpaired.split(",").first) if unpaired

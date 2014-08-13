@@ -25,6 +25,7 @@ class TestTransrateBin < Test::Unit::TestCase
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.sam",
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.sorted.bam",
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.bai",
+      #"150uncovered.l.fq.150uncovered.r.fq..sorghum_transcript.sam"
       "..150uncovered.u.fq.assembly.2.bai",
       "..150uncovered.u.fq.assembly.2.bam",
       "..150uncovered.u.fq.assembly.2.sam",
