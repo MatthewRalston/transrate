@@ -67,6 +67,7 @@ module Transrate
     # @param left [String] path to the left reads
     # @param right [String] path to the right reads
     # @param unpaired [String] path to the unpaired reads
+	# @param library [String] library type for strand specificity
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
     def run left=nil, right=nil, unpaired=nil, library=nil, insertsize=nil, insertsd=nil
@@ -126,7 +127,7 @@ module Transrate
     end
 
     def all_metrics left=nil, right=nil, unpaired=nil, library=nil, insertsize=nil, insertsd=nil
-      self.run(left, right, insertsize, insertsd)
+      self.run(left, right, unpaired, library, insertsize, insertsd)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
       all.merge!(@comparative_metrics.comp_stats) if @comparative_metrics
