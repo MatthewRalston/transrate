@@ -20,7 +20,7 @@ module Transrate
       self.initial_values
     end
 
-    def run left=nil, right=nil, unpaired=nil, library=nil, insertsize:200, insertsd:50, threads:8
+    def run left=nil, right=nil, unpaired=nil, library=nil, insertsize:200, insertsd:50, threads:8, singletons:nil
       left.split(",").each {|file| raise IOError.new "Left read file is nil" unless File.exist? file} if left
       right.split(",").each {|file| raise IOError.new "Right read file is nil" unless File.exist? file} if right
       unpaired.split(",").each {|file| raise IOError.new "Unpaired read file is nil" unless File.exist? file} if unpaired

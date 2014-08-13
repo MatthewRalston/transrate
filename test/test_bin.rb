@@ -208,10 +208,13 @@ should "run on test data with paired input" do
       assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
       left = []
       right = []
+      unpaired = []
       left << File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       left << File.join(File.dirname(__FILE__), 'data', 'bridging_reads.l.fastq')
       right << File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
       right << File.join(File.dirname(__FILE__), 'data', 'bridging_reads.r.fastq')
+      unpaired << File.join(File.dirname(__FILE__), 'data', '150uncovered.u.fq')
+      unpaired << File.join(File.dirname(__FILE__), 'data', '150uncovered.u.fq')
       cmd = "bundle exec bin/transrate --assembly #{assembly}"
       cmd << " --left #{left.join(",")}"
       cmd << " --right #{right.join(",")}"
@@ -304,7 +307,7 @@ should "run on test data with paired input" do
       cmd << " --genome #{genome}"
       c = Transrate::Cmd.new("#{cmd}")
       c.run
-      assert File.exist?("transrate_assemblies.csv")
+      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
       hash={}
       CSV.foreach("transrate_assemblies.csv", :headers => true,
                                    :header_converters => :symbol,
