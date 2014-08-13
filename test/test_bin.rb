@@ -51,11 +51,12 @@ class TestTransrateBin < Test::Unit::TestCase
       "Os.protein.2.phr",  "Os.protein.2.pin",  "Os.protein.2.psq",
       "supported_bridges.csv",
       "transrate_assemblies.csv",
-      "transrate_assembly.2.fa_contigs.csv",
-      "singletons.fa",
-      "newfile.sam",
+      "transrate_contigs.csv",
+      "assembly.2.fa.bcf",
       "unaligned_transcripts.fa",
-      "transrate_contigs.csv"]
+      "transrate_test_ref_align_assembly.fa_contigs.csv",
+	  "newfile.sam",
+      "transrate_assembly.2.fa_contigs.csv"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
       end
@@ -200,6 +201,37 @@ should "run on test data with paired input" do
       assert_equal 1566, hash[:n50], "n50"
       assert_equal 10, hash[:n_refs_with_crbb], "number of crb hits"
       assert_equal 457, `wc -l newfile.sam`.split[0].to_i - 4
+    end
+
+    should "run on test data with comma separated list of fastq files" do
+      assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
+      left = []
+      right = []
+      left << File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      left << File.join(File.dirname(__FILE__), 'data', 'bridging_reads.l.fastq')
+      right << File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      right << File.join(File.dirname(__FILE__), 'data', 'bridging_reads.r.fastq')
+      cmd = "bundle exec bin/transrate --assembly #{assembly}"
+      cmd << " --left #{left.join(",")}"
+      cmd << " --right #{right.join(",")}"
+      c = Transrate::Cmd.new("#{cmd}")
+      c.run
+      assert_equal true, c.status.success?, "exit status"
+      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
+      assert File.exist?("transrate_assembly.2.fa_contigs.csv"),
+             "csv file doesn't exist"
+      hash = {}
+      CSV.foreach("transrate_assemblies.csv", :headers => true,
+                                   :header_converters => :symbol,
+                                   :converters => :all) do |row|
+        row.headers
+        row.fields
+        row.headers.zip(row.fields).each do |header, field|
+          hash[header]=field
+        end
+      end
+      assert_equal 10331, hash[:n_bases], "number of bases"
+      assert_equal 1566, hash[:n50], "n50"
     end
 
     should "fail when one of multiple assemblies is missing" do

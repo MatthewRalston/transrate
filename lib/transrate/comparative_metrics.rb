@@ -10,8 +10,8 @@ module Transrate
     attr_reader :reciprocal_hits
     attr_reader :has_run
     attr_reader :reference_coverage
-    attr_reader :comp_stats
     attr_reader :n_chimeras, :p_chimeras
+    attr_reader :comp_stats
 
     def initialize assembly, reference, threads
       @assembly = assembly
@@ -71,7 +71,8 @@ module Transrate
           contig = @assembly[hit.query]
           contig.has_crb = true
           # how much of the reference is covered by this single contig
-          contig.reference_coverage = hit.alnlen / hit.tlen
+          contig.reference_coverage =
+                             (hit.alnlen - hit.mismatches - hit.gaps)/ hit.tlen
           contig.hits << hit
         end
       end
@@ -81,9 +82,12 @@ module Transrate
       @reference.each_value do |ref_contig|
         key = ref_contig.name
         list = ref_contig.hits
-        total_length += crbblast.target_is_prot ? ref_contig.length : ref_contig.length*3
-
-        next if list.empty? # ah this is what was breaking everything
+        if crbblast.target_is_prot
+          total_length += ref_contig.length * 3
+        else
+          total_length += ref_contig.length
+        end
+        next if list.empty?
         blocks = []
         target_length = 0
         list.each do |hit|
@@ -164,7 +168,6 @@ module Transrate
         length_of_coverage = calculate_coverage blocks
         @cov ||= [0, 0, 0, 0, 0]
         if target_length > 0
-          # puts "#{length_of_coverage} / #{target_length.to_f}"
           ref_p = length_of_coverage / target_length.to_f
         else
           ref_p = 0
@@ -179,10 +182,11 @@ module Transrate
 
         total_coverage += length_of_coverage
       end
+
       cov.each_with_index do |p, i|
         @comp_stats["cov#{(100*p).to_i}".to_sym] = @cov[i]
         @comp_stats["p_cov#{(100*p).to_i}".to_sym] =
-                                                  @cov[i]/@reference.size.to_f
+          @cov[i]/@reference.size.to_f
       end
       total_coverage / total_length.to_f
     end
