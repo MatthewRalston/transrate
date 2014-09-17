@@ -3,28 +3,45 @@
 </p>
 
 ## Development status
+[travis]: https://travis-ci.org/MatthewRalston/transrate
 
-[![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
-[![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
-[![Dependency Status](https://gemnasium.com/Blahah/transrate.png?travis)][gemnasium]
-[![Code Climate](https://codeclimate.com/github/Blahah/transrate.png)][codeclimate]
-[![Coverage Status](https://coveralls.io/repos/Blahah/transrate/badge.png?branch=master)][coveralls]
+This version of transrate is no longer being developed.
 
-[gem]: https://badge.fury.io/rb/transrate
-[travis]: https://travis-ci.org/Blahah/transrate
-[gemnasium]: https://gemnasium.com/Blahah/transrate
-[codeclimate]: https://codeclimate.com/github/Blahah/transrate
-[coveralls]: https://coveralls.io/r/Blahah/transrate
+## Installation
+This requires ruby, ruby[gem]s, 1 gem: bundle
 
-This software is being actively developed. Please be aware that there may be bugs. If you find any, please report them on the [issue tracker](https://github.com/Blahah/transrate/issues).
+
+```
+gem install bundler
+```
+
+This fork:
+
+
+```
+git clone https://github.com/MatthewRalston/transrate.git
+cd transrate
+bundle install
+bundle exec rake compile
+bundle exec bin/transrate --install-deps
+bundle exec rake
+```
+
+Simply add the executable at ```bin/transrate``` to your PATH
+
+
 
 ## Citation
+This fork of transrate is being maintained by Matthew Ralston.
+
 
 Transrate is pre-publication academic software. If you use it, please cite the github repository and the DOI: [![DOI](https://zenodo.org/badge/3687/Blahah/transrate.png)](http://dx.doi.org/10.5281/zenodo.11039).
 
 ## Documentation
 
 **transrate** is documented [on the website](http://hibberdlab.com/transrate).
+
+The additional options are documented in the ```--help``` option
 
 ## Contributing
 
