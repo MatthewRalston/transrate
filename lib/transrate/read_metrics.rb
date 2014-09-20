@@ -112,8 +112,8 @@ module Transrate
               @num_reads += 1
               rs.parse_line(line2)
               raise "Pairing error: consecutive paired reads unpaired in SAM file:\nNote: Paired reads have the same name by convention, sometimes with '1' or '2' appended.\nFirst read:#{ls.name}\nSecond read:#{rs.name}\n" unless ls.name == rs.name || ls.name[0...ls.name.size-1] == rs.name[0...rs.name.size-1]
-              rchrom = (rs.chrom == ls.chrom) ? lchrom : @assembly[rs.chrom]
-              rchrom.edit_distance += rs.edit_distance if rs.edit_distance
+              rchrom = @assembly[rs.chrom]
+              rchrom.edit_distance += rs.edit_distance unless rchrom.nil?
               rchrom.bases_mapped += rs.length unless rchrom.nil?
               @edit_distance += rs.edit_distance if rs.edit_distance
               @total_bases += rs.length
